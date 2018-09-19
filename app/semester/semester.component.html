@@ -1,0 +1,115 @@
+<div class="container">
+    <div *ngIf="error" class="row alert alert-{{error.security}}">
+        {{error.message}}
+    </div>
+    <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+    />
+    <div class="row">
+        <div class="col-md-2">
+            <h5>แบบฟอร์มปี/ภาค</h5>
+            <form [formGroup]="semesterForm">
+
+                <div class="form-group">
+                    <label for="Year">ปีการศึกษา</label>
+                    <input type="text" class="form-control" id="Year" [pattern]="number4Pattern" placeholder="ปีการศึกษา" [(ngModel)]="model.Year"
+                        name="Year" formControlName="Year" />
+                    <div *ngIf="semesterForm.controls['Year'].hasError('required') && semesterForm.controls['Year'].touched" class="alert alert-danger">โปรดระบุ
+                        ปีการศึกษา.
+                    </div>
+                    <div *ngIf="semesterForm.controls['Year'].hasError('pattern')" class="alert alert-danger">โปรดระบุ ปีการศึกษาเป็นตัวเลขจำนวน
+                        4 ตัว.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="Semester">ภาคการศึกษา</label>
+                    <input type="text" class="form-control" id="Semester" [pattern]="number1Pattern" placeholder="ภาคการศึกษา" [(ngModel)]="model.Semester"
+                        name="Semester" formControlName="Semester">
+                    <div *ngIf="semesterForm.controls['Semester'].hasError('required') && semesterForm.controls['Semester'].touched" class="alert alert-danger">โปรดระบุ
+                        ภาคการศึกษา.
+                    </div>
+                    <div *ngIf="semesterForm.controls['Semester'].hasError('pattern')" class="alert alert-danger">โปรดระบุ
+                        ภาคการศึกษาเป็นตัวเลขจำนวน 1 ตัว.</div>
+                </div>
+                <div class="form-group">
+                    <label for="MyFile">รูป</label>
+                    <input type="file" class="form-control" #fileupload name="MyFile" (change)="fileChange($event)" />
+                    <input type="hidden" class="form-control" id="MyFile" placeholder="ไฟล์" name="MyFile" formControlName="MyFile">
+                    <div *ngIf="semesterForm.controls['MyFile'].hasError('required') && semesterForm.controls['MyFile'].touched" class="alert alert-danger">โปรดระบุ
+                        ไฟล์เอกสาร.
+                    </div>
+                </div>
+
+                <button [disabled]="!semesterForm.valid" [hidden]="btnForm" (click)="onAddSemester()" class="btn btn-success btn-sm">
+                    <i class="material-icons md-18">save</i>บันทึก </button>
+                <button [disabled]="!semesterForm.valid" [hidden]="!btnForm" (click)="onUpdateSemester()" class="btn btn-info btn-sm">
+                    <i class="material-icons md-18">edit</i>แก้ไข </button>
+                <button (click)="cancelForm()" class="btn btn-danger btn-sm">
+                    <i class="material-icons md-18">cancel</i>รีเซต</button>
+            </form>
+        </div>
+        <div class="col-md-10">
+            <h3>รายการ ปีการศึกษา / ภาคการศึกษา</h3>
+            <div class="col-md-12">
+                <table class="table table-striped" [mfData]="semesters|dataFilter:filterQuery" #mf="mfDataTable" [mfRowsOnPage]="rowsOnPage">
+                    <thead>
+                        <tr>
+                            <th colspan="4">
+                                <div class="row">
+                                    <div class="col-md-4">
+
+                                        <label class="label-control">กรองตามปีการศึกษา :</label>
+                                        <input class="form-control" [(ngModel)]="filterQuery" />
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">
+                                <mfDefaultSorter by="Id">รหัส</mfDefaultSorter>
+                            </th>
+                            <th class="text-center">
+                                <mfDefaultSorter by="Year">ปีการศึกษา</mfDefaultSorter>
+                            </th>
+                            <th class="text-center">
+                                <mfDefaultSorter by="age">ภาคการศึกษา</mfDefaultSorter>
+                            </th>
+                            <th class="text-center">
+                                <mfDefaultSorter by="age">ไฟล์เอกสาร</mfDefaultSorter>
+                            </th>
+                            <th class="text-center">
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let semester of mf.data">
+                            <td class="text-center">{{semester.Id}}</td>
+                            <td class="text-center">{{semester.Year}}</td>
+                            <td class="text-center">{{semester.Semester}}</td>
+                            <td class="text-center">
+                                <a href="{{url}}/upload/{{semester.Image}}" title="{{semester.Image}}" class="btn btn-info btn-sm" target="_blank">
+                                    <i class="material-icons md-18">image</i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <button (click)="formUpdate(semester)" class="btn btn-info btn-sm">
+                                    <i class="material-icons md-18">edit</i>
+                                </button>
+                                <button (click)="onDelete(semester)" class="btn btn-warning btn-sm">
+                                    <i class="material-icons md-18">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <mfBootstrapPaginator [rowsOnPageSet]="[10,25,50]"></mfBootstrapPaginator>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
